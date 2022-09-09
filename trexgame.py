@@ -338,6 +338,8 @@ while True:
 
 		print(f"nofn is {nofn}")
 		print(f"nofd is {nofd}")
+		#I tried to make the fade background only appear once so it does not become completly black here
+		#you can see how that went
 		if nofn == 0:
 			if night:
 				screen.blit(gmsf,(0,0))
