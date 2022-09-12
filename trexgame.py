@@ -8,6 +8,7 @@ from pygame.locals import *
  
 pygame.init()
 
+
  
 fps = 60
 fpsClock = pygame.time.Clock()
@@ -15,6 +16,20 @@ fpsClock = pygame.time.Clock()
 width, height = 900, 480
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("T-Rex ahead!")
+
+font = pygame.font.Font("fonts/Gemini Moon.otf", 40)
+
+def display_score():
+	current_time = int(pygame.time.get_ticks() / 1000) - (start_time / 1000)
+	current_time = round(current_time)
+	if current_time <= 0:
+		current_time = 0
+	if day:
+		text = font.render(f"{current_time}", True, (0, 81, 255))
+	else:
+		text = font.render(f"{current_time}", True, (119, 255, 0))
+	screen.blit(text,(800, 10))
+	return current_time
 
 icon = pygame.image.load("icon.ico")
 pygame.display.set_icon(icon)
@@ -27,8 +42,7 @@ crouching = False
          
 ctrex = pygame.image.load("images/trex.png")
 ctrex_rect = ctrex.get_rect(midbottom = (60,355))
-print(ctrex_rect.x)
-print(ctrex_rect.y)
+
 trex = pygame.image.load("images/trexverycool.png")
 trex_rect = trex.get_rect(midbottom = (60,355))
 
@@ -86,15 +100,20 @@ bs = 0
 nofn = 0
 nofd = 0
 
+start_time = 0
+
 enemies = ["cactus","petra"]
 nenemies = ["npt","npd","npb"]
 
 jumping = True
 paused = False
-day = False
-night = True
+day = True
+night = False
 gm = False
 
+if night == True and day == True:
+	night = False
+	day == True
 
 # Game loop.
 while True:
@@ -120,12 +139,10 @@ while True:
 				if bs == 0:
 					ground_rect.y = 355
 					bs += 1
-					print("it changed :D")			
+		
 
 
 				DTN = (randint(0,2000))
-				if DTN == 1:
-					print(DTN)
 				if DTN == 1:
 					petra_rect.x = -200
 					cactus_rect.x = -200
@@ -219,6 +236,8 @@ while True:
 				  gm = True
 
 
+
+
 				  # Draw.
 				screen.fill("white")
 				screen.blit(cactus,cactus_rect)
@@ -228,17 +247,21 @@ while True:
 				elif crouching:
 				  screen.blit(ctrex,ctrex_rect)
 				screen.blit(petra,petra_rect)
+				display_score()
 
 			elif night:
 				bs = 0
 
 				NTD = (randint(0,2000))
-				if NTD == 2000:
-				    print(NTD)
+
 				if NTD == 1:
 					day = True
 					night = False
-					print("test")
+					petra_rect.x = -200
+					cactus_rect.x = -200
+					npt_rect.x = -200
+					npd_rect.x = -200
+					npb_rect.x = -200					
 
 
 
@@ -275,27 +298,35 @@ while True:
 				if trex_rect.colliderect(cieling_rect):
 					trex_rect.top = cieling_rect.bottom
 
-				if npt_rect.right <= 0 and npd_rect.right <= 0 and npb_rect.right <= 0:
+				if npt_rect.right <= 0 and npd_rect.right <= 0 and npb_rect.right <= 0 and evilcactus_rect.x <= 0:
 				  if len(nenemies) >= 30:
 				  	nenemies = ["npt","npd","npb"]
-				  rngrng = randint(0,100)
-				  print(rngrng)
-				  if rngrng == 0:
-				  	evilcactus_rect.left = sp
-				  rng = (choice(nenemies))
-				  if rng == "npt":
-				  	nenemies.append("npd")
-				  	nenemies.append("npb")
-				  	npt_rect.left = sp
-				  if rng == "npd":
-				  	nenemies.append("npt")
-				  	nenemies.append("npb")
-				  	npd_rect.left = sp
+				  rngrng = randint(0,500)
+				  if rngrng == 0 and evilcactus_rect.right <= 0:
+				  	cyrng = randint(1,3)
+				  	if cyrng == 1:
+				  		evilcactus_rect.y = 50
+				  	if cyrng == 2:
+				  		evilcactus_rect.y = 210
+				  	if cyrng == 3:
+				  		evilcactus_rect.y = 400
 
-				  if rng == "npb":
-				  	nenemies.append("npd")
-				  	nenemies.append("npt")
-				  	npb_rect.left = sp			  	
+				  	evilcactus_rect.left = sp
+				  else:
+					  rng = (choice(nenemies))
+					  if rng == "npt":
+					  	nenemies.append("npd")
+					  	nenemies.append("npb")
+					  	npt_rect.left = sp
+					  if rng == "npd":
+					  	nenemies.append("npt")
+					  	nenemies.append("npb")
+					  	npd_rect.left = sp
+
+					  if rng == "npb":
+					  	nenemies.append("npd")
+					  	nenemies.append("npt")
+					  	npb_rect.left = sp			  	
 
 				if trex_rect.colliderect(npt_rect):
 				  gm = True
@@ -304,6 +335,9 @@ while True:
 				  gm = True
 
 				if trex_rect.colliderect(npb_rect):
+				  gm = True
+
+				if trex_rect.colliderect(evilcactus_rect):
 				  gm = True
 
 
@@ -315,6 +349,8 @@ while True:
 				screen.blit(npt,npt_rect)
 				screen.blit(npd,npd_rect)
 				screen.blit(npb,npb_rect)
+				display_score()
+
 
 	if gm:
 		for event in pygame.event.get():
@@ -331,25 +367,23 @@ while True:
 			  	ctrex_rect.y = 298
 			  	trex_rect.x = 9
 			  	trex_rect.y = 298
+			  	crouching = False
+			  	speed = 10
 			  	night = False
 			  	day = True
 			  	gm = False
+			  	start_time = pygame.time.get_ticks()
 
 
-		print(f"nofn is {nofn}")
-		print(f"nofd is {nofd}")
-		#I tried to make the fade background only appear once so it does not become completly black here
-		#you can see how that went
 		if nofn == 0:
 			if night:
 				screen.blit(gmsf,(0,0))
-				print("cool")
 				nofn = 1
 				nofd = 0
 		if nofd == 0:
 			if day:
 				screen.blit(gmsf,(0,0))
-				nofd = 0
+				nofd = 1
 				nofn = 0				
 
 
